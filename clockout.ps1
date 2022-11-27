@@ -1,16 +1,28 @@
-$desc = "`"{0}`"" -f $args[0]
+$w = Read-Host -Prompt "Work description"
+$p = Read-Host -Prompt "Project"
+$d = Read-Host -Prompt "Duration (int)"
+$s = Read-Host -Prompt "Submit?"
+$t = Read-Host -Prompt "Execution time (24 hr)"
+$rand = Read-Host -Prompt "Randomize minutes?"
+
+$work = if ($w) { "-w " + "`"{0}`"" -f $w } else { "" }
+$proj = if ($p) { "-p " + "`"{0}`"" -f $p } else { "" }
+$dur = if ($d) { "-d " + $d } else { "" }
+$submit = if ($s -eq "y" -or $s -eq "Y") { "-s" } else { "" }
+$exc_time = if ($t) { $t } else { 18 }
+$randomize = if ($rand) { $true } else { $false }
+
 $action = New-ScheduledTaskAction -Execute "path/to/conda.bat" -Argument (
     "run " +
     "-n " +
     "base " +
     "python " +
     "path/to/clockout.py " +
-    $desc + " " +
-    $args[1]
+    $work + $proj + $dur + $submit
 )
-$rnd_min = Get-Random -Minimum 0 -Maximum 2
-$rnd_sec = Get-Random -Minimum 0 -Maximum 10
-$dt_str = "18:$rnd_min$rnd_sec"
+$rnd_min = if ($randomize) { Get-Random -Minimum 0 -Maximum 2 } else { 0 }
+$rnd_sec = if ($randomize) { Get-Random -Minimum 0 -Maximum 10 } else { 0 }
+$dt_str = "${exc_time}:$rnd_min$rnd_sec"
 $dt = [DateTime]::ParseExact($dt_str, "HH:mm", $null)
 $trigger = New-ScheduledTaskTrigger -Once -At $dt
 $trigger.StartBoundary = [DateTime]::Parse($trigger.StartBoundary).ToLocalTime().ToString("s")
