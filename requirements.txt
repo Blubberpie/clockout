@@ -1,0 +1,3 @@
+hvac
+playwright
+python-dotenv
