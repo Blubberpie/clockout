@@ -35,6 +35,7 @@ class Clockout:
         return read_response_data["email"], read_response_data["password"]
 
     async def login(self, page: Page):
+        print("Logging in...")
         await page.goto(url=os.getenv("MAIN_URL"))
         await page.wait_for_url(url=os.getenv("MAIN_URL_LOGIN"))
         await page.get_by_role(role="button", name="Login with Microsoft").click()
@@ -46,6 +47,7 @@ class Clockout:
             await page.locator(selector="[type='submit']").click()
 
     async def clockout(self, page: Page):
+        print("Clocking out...")
         await page.get_by_label("Describe your work").fill(self.work)
         await page.get_by_role("button", name="Project").click()
         await page.get_by_role("option", name=self.project).click()
@@ -55,6 +57,7 @@ class Clockout:
             expected_response_url = os.getenv("RESPONSE_URL")
             async with page.expect_response(url_or_predicate=expected_response_url):
                 await page.get_by_role("button", name="Log your timesheet").click()
+        print("Mischief managed.")
 
     async def run(self):
         async with async_playwright() as p:
