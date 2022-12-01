@@ -55,9 +55,10 @@ class Clockout:
         await page.get_by_role("option", name=self.duration).click()
         if self.shall_submit:
             expected_response_url = os.getenv("RESPONSE_URL")
-            async with page.expect_response(url_or_predicate=expected_response_url):
+            async with page.expect_response(url_or_predicate=expected_response_url) as response_info:
                 await page.get_by_role("button", name="Log your timesheet").click()
-        print("Mischief managed.")
+            response = await response_info.value
+            print("Mischief managed." if response.ok else "Oops.")
 
     async def run(self):
         async with async_playwright() as p:
